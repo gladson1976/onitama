@@ -12,6 +12,14 @@
 	--ONITAMA-BG-KEY: #a1a1a1;
 	--ONITAMA-TEXT-KEY: #000000;
 	--ONITAMA-WEIGHT-KEY: 600;
+	--ONITAMA-PLAYER-COLOR-BLUE: #87CEEB;
+	--ONITAMA-PLAYER-COLOR-RED: #FFA500;
+	--ONITAMA-CELL-RED: #FFA500;
+	--ONITAMA-CELL-GREEN: #00C400;
+	--ONITAMA-CELL-BLUE: #3333DD;
+	--ONITAMA-CELL-PLAYER: #292929;
+	--ONITAMA-CELL-WIND: #000080;
+	--ONITAMA-CELL-BORDER: #292929;
 }
 
 @font-face {
@@ -21,6 +29,11 @@
 	src: local('Material Icons'),
 		local('MaterialIcons-Regular'),
 		url(MaterialIcons-Regular.ttf) format('truetype');
+}
+
+html, body, #root {
+    margin: 0;
+    height: 100%;
 }
 
 .dark-mode {
@@ -70,16 +83,196 @@ body, .onitama-wrapper {
 	font-feature-settings: 'liga';
 }
 
-.onitama-grid {
-	display: grid;
-	grid-template-rows: auto auto;
+#root {
+	display: flex;
+	flex-direction: column;
+	background-image: url(onitama.png);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
 }
 
 .onitama-container {
 	display: flex;
 	flex-direction: column;
-	margin: 1.5rem auto 0 auto;
+	margin: auto 0;
+	width: 100vw;
+	height: auto;
 	align-items: center;
+	// background-image: url(onitama.png);
+	// background-size: cover;
+	// background-repeat: no-repeat;
+}
+
+.onitama-player-container {
+	width: 90vw;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	margin: 4vw 0;
+	padding-bottom: 4vw;
+}
+
+.onitama-grid {
+	display: grid;
+	grid-template-rows: repeat(5, 20%);
+	grid-template-columns: repeat(5, 20%);
+	width: 80vw;
+	height: 80vw;
+	border: 1px solid #292929;
+	background-image: url(onitama-board.png);
+	background-size: contain;
+}
+
+.onitama-cell {
+	// border: 1px solid #292929;
+	width: 100%;
+	height: 100%;
+}
+
+.onitama-player {
+	width: 70vw;
+	height: 24vw;
+	align-self: center;
+	justify-content: space-evenly;
+	display: flex;
+}
+
+.onitama-card {
+	width: 20vw;
+	height: 24vw;
+	border: 1px solid #292929;
+	align-self: center;
+	display: grid;
+	grid-template-rows: 1fr 5fr;
+	padding: 0 2% 2%;
+	background-color: #DEC19999;
+}
+
+.onitama-rotate-card {
+	transform: rotate(180deg);
+}
+
+.onitama-card-header {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.onitama-card-body {
+	width: 100%;
+	height: 100%;
+	border: 1px solid var(--ONITAMA-CELL-BORDER);
+	background-color: var(--ONITAMA-CELL-BORDER);
+	grid-gap: 1px;
+	justify-self: center;
+	display: grid;
+	grid-template-columns: repeat(5, auto);
+	grid-template-rows: repeat(5, auto);
+}
+
+.onitama-spare {
+	width: 15vw;
+	height: 18vw;
+}
+
+.onitama-spare-card {
+	width: 15vw;
+	height: 18vw;
+	border: 1px solid #292929;
+	font-size: x-small;
+	align-self: center;
+	display: grid;
+	grid-template-rows: 1fr 5fr;
+	padding: 0 4% 6%;}
+
+.onitama-spare-filler {
+	width: 15vw;
+	height: 18vw;
+	align-self: center;
+}
+
+.onitama-player-color-blue {
+	// border-bottom: 2vw solid var(--ONITAMA-PLAYER-COLOR-BLUE);
+	border-image-source: url(underscore-blue.svg);
+	border-image-slice: 0 0 53 0;
+	border-image-width: 0px 0px auto 0px;
+	border-image-outset: 0px 0px 4.5vh 0px;
+	border-image-repeat: stretch stretch;
+	border-style: solid;
+}
+
+.onitama-card-cell {
+	background-color: white;
+}
+
+.onitama-card-color-blue {
+	background-color: lighten(#87CEEB, 20%);
+}
+
+.onitama-player-color-red {
+	// border-bottom: 2vw solid var(--ONITAMA-PLAYER-COLOR-RED);
+	border-image-source: url(underscore-red.svg);
+	border-image-slice: 0 0 53 0;
+	border-image-width: 0px 0px auto 0px;
+	border-image-outset: 0px 0px 4.5vh 0px;
+	border-image-repeat: stretch stretch;
+	border-style: solid;
+}
+
+.onitama-card-color-red {
+	background-color: lighten(#FFA500, 40%);
+}
+
+.onitama-cell-red {
+	background-color: var(--ONITAMA-CELL-RED);
+}
+
+.onitama-cell-green {
+	background-color: var(--ONITAMA-CELL-GREEN);
+}
+
+.onitama-cell-blue {
+	background-color: var(--ONITAMA-CELL-BLUE);
+}
+
+.onitama-cell-player {
+	background-color: var(--ONITAMA-CELL-PLAYER);
+}
+
+.onitama-cell-wind {
+	background-color: var(--ONITAMA-CELL-WIND);
+}
+
+.onitama-dragon-red {
+	background-image: url(dragon-red.png);
+	background-size: contain;
+}
+
+.onitama-ninja-red {
+	background-image: url(ninja-red.png);
+	background-size: contain;
+}
+
+.onitama-student-red {
+	background-image: url(student-red.png);
+	background-size: contain;
+}
+
+.onitama-dragon-blue {
+	background-image: url(dragon-blue.png);
+	background-size: contain;
+}
+
+.onitama-ninja-blue {
+	background-image: url(ninja-blue.png);
+	background-size: contain;
+}
+
+.onitama-student-blue {
+	background-image: url(student-blue.png);
+	background-size: contain;
 }
 
 .onitama-correct {

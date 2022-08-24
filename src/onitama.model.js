@@ -1,22 +1,18 @@
-const onitamaBoard = {
-    board: []
+const onitamaData = {
+	gameSettings: {
+		allowHints: false,
+		selectedPacks: [1]
+	},
+	gameStats: {
+		played: 0,
+		won: {
+			stone: 0,
+			stream: 0
+		}
+	}
 };
 
-const onitamaCard = {
-    name: '',
-    glyph: '',
-    color: '',
-    rank: '',
-    moves: []
-};
-
-const onitamaPack = {
-    pack: '',
-    image: '',
-    cards: []
-};
-
-export { onitamaBoard, onitamaCard, onitamaPack };
+export { onitamaData };
 
 // 0   1   2   3   4
 // 5   6   7   8   9
