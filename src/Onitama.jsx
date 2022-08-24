@@ -52,14 +52,13 @@ function Onitama() {
 		tempBoard[2] = 10;
 		tempBoard[3] = 1;
 		tempBoard[4] = 1;
-
 		tempBoard[20] = 2;
 		tempBoard[21] = 2;
 		tempBoard[22] = 20;
 		tempBoard[23] = 2;
 		tempBoard[24] = 2;
-
 		setCurrentBoard(tempBoard);
+		setSelectedPiece(-1);
 	}, [currentBoard]);
 
 	const goHint = useCallback(() => {
@@ -94,18 +93,26 @@ function Onitama() {
 		console.log('Help - ', appTitle, appVersion);
 	}, []);
 
+	const computePossibleMoves = useCallback(() => {
+
+	}, []);
+
 	const checkCellClick = useCallback((cellIndex) => {
 		// If index is a valid selectable piece (2 or 20) and set it as the selected piece
 		// If same piece is selected again, deselect it
 		// If piece is already selected and index is a valid move position, then proceed to move action
-		if (currentBoard[cellIndex] === 2 || currentBoard[cellIndex] === 20) {
-			if (selectedPiece === cellIndex) {
-				setSelectedPiece(-1);
-				return;
-			}
-			setSelectedPiece(cellIndex);
+		if (selectedPiece === cellIndex) {
+			setSelectedPiece(-1);
+			return;
 		}
-	}, [currentBoard, selectedPiece]);
+		setSelectedPiece(cellIndex);
+		computePossibleMoves();
+	}, [computePossibleMoves, selectedPiece]);
+
+	const checkCardClick = useCallback((selCard) => {
+		setSelectedCard(selCard.id);
+		computePossibleMoves();
+	}, [computePossibleMoves]);
 
 	const renderOnitamaHeader = useCallback(() => {
 		return (
@@ -143,7 +150,7 @@ function Onitama() {
 								'onitama-dragon-red': value === 20,
 								'onitama-cell-selected': index === selectedPiece
 							})}
-							onClick={() => { checkCellClick(index); }}></div>
+							onClick={() => { value === 2 || value === 20 ? checkCellClick(index) : null; }}></div>
 						);
 					})
 				}
@@ -163,14 +170,16 @@ function Onitama() {
 		});
 	}, [currentBoard]);
 
-	const renderCard = useCallback((card, isSpareCard = false) => {
+	const renderCard = useCallback((card, isSpareCard = false, player = '') => {
 		return (
 			<>
 				<div key={card.name} className={classNames('onitama-card', {
 					'onitama-spare-card': isSpareCard,
 					'onitama-card-color-blue': card.rank === 'blue',
-					'onitama-card-color-red': card.rank === 'red'
-				})}>
+					'onitama-card-color-red': card.rank === 'red',
+					'onitama-card-selected': card.id === selectedCard
+				})}
+				onClick={() => { player === 'human' && !isSpareCard ? checkCardClick(card) : null; }}>
 					<div key={`onitamaCardHeader-${card.name}`} id="onitamaCardHeader" className="onitama-card-header">
 						<span>{card.name}</span> <span>{card.glyph}</span>
 					</div>
@@ -180,7 +189,7 @@ function Onitama() {
 				</div>
 			</>
 		);
-	}, [renderCells]);
+	}, [checkCardClick, renderCells, selectedCard]);
 
 	const renderCards = useCallback((player) => {
 		const selectedCards = player === 'human' ? [0, 1] : [3, 4];
@@ -188,7 +197,7 @@ function Onitama() {
 			return;
 		}
 		return _.map(selectedCards, (card) => {
-			return renderCard(currentHand[card]);
+			return renderCard(currentHand[card], false, player);
 		});
 	}, [currentHand, renderCard]);
 

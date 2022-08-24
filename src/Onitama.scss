@@ -131,15 +131,42 @@ body, .onitama-wrapper {
 	height: 100%;
 }
 
+// .onitama-cell-selected::after {
+// 	content: ' ';
+// 	display: block;
+// 	border-radius: 50%;
+// 	background-color: var(--ONITAMA-CARD-COLOR-RED);
+// 	width: 90%;
+// 	height: 90%;
+// 	margin: 5%;
+// 	border: 1px solid var(--ONITAMA-PLAYER-COLOR-RED);
+// }
+
+.onitama-cell-selected {
+	position: relative;
+}
+
+.onitama-cell-selected::before,
 .onitama-cell-selected::after {
-	content: ' ';
-	display: block;
-	border-radius: 50%;
-	background-color: var(--ONITAMA-CARD-COLOR-RED);
-	width: 90%;
-	height: 90%;
-	margin: 5%;
-	border: 1px solid var(--ONITAMA-PLAYER-COLOR-RED);
+	content: '';
+	position: absolute;
+	width: 1vh;
+	height: 1vh;
+	border: 0.5vh solid var(--ONITAMA-PLAYER-COLOR-RED);
+}
+
+.onitama-cell-selected::before {
+	left: 5%;
+	top: 5%;
+	border-bottom: none;
+	border-right: none;
+}
+
+.onitama-cell-selected::after {
+	right: 5%;
+	bottom: 5%;
+	border-top: none;
+	border-left: none;
 }
 
 .onitama-player {
@@ -159,6 +186,12 @@ body, .onitama-wrapper {
 	grid-template-rows: 1fr 5fr;
 	padding: 0 2% 2%;
 	background-color: #DEC19999;
+}
+
+.onitama-card-selected {
+	-webkit-box-shadow: 0px 0px 4px 4px var(--ONITAMA-CARD-COLOR-RED);
+	-moz-box-shadow: 0px 0px 4px 4px var(--ONITAMA-CARD-COLOR-RED);
+	box-shadow: 0px 0px 4px 4px var(--ONITAMA-CARD-COLOR-RED);
 }
 
 .onitama-rotate-card {
