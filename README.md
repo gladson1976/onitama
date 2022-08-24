@@ -7,4 +7,4 @@ https://en.wikipedia.org/wiki/Onitama<br />
 
 Screenshot
 
-<img src="https://github.com/gladson1976/onitama/blob/main/public/Onitama.jpeg">
+<img src="https://github.com/gladson1976/onitama/blob/main/public/Onitama.jpeg?raw=true">
