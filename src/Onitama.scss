@@ -14,6 +14,8 @@
 	--ONITAMA-WEIGHT-KEY: 600;
 	--ONITAMA-PLAYER-COLOR-BLUE: #87CEEB;
 	--ONITAMA-PLAYER-COLOR-RED: #FFA500;
+	--ONITAMA-CARD-COLOR-BLUE: #87CEEB77;
+	--ONITAMA-CARD-COLOR-RED: #FFA50077;
 	--ONITAMA-CELL-RED: #FFA500;
 	--ONITAMA-CELL-GREEN: #00C400;
 	--ONITAMA-CELL-BLUE: #3333DD;
@@ -208,7 +210,7 @@ body, .onitama-wrapper {
 }
 
 .onitama-card-color-blue {
-	background-color: lighten(#87CEEB, 20%);
+	background-color: var(--ONITAMA-CARD-COLOR-BLUE);
 }
 
 .onitama-player-color-red {
@@ -222,7 +224,7 @@ body, .onitama-wrapper {
 }
 
 .onitama-card-color-red {
-	background-color: lighten(#FFA500, 40%);
+	background-color: var(--ONITAMA-CARD-COLOR-RED);
 }
 
 .onitama-cell-red {

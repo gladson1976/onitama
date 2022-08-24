@@ -100,7 +100,11 @@ function Onitama() {
 	const renderCard = useCallback((card, isSpareCard = false) => {
 		return (
 			<>
-				<div className={classNames('onitama-card', { 'onitama-spare-card': isSpareCard })}>
+				<div className={classNames('onitama-card', {
+					'onitama-spare-card': isSpareCard,
+					'onitama-card-color-blue': card.rank === 'blue',
+					'onitama-card-color-red': card.rank === 'red'
+				})}>
 					<div id="onitamaCardHeader" className="onitama-card-header">
 						<span>{card.name}</span> <span>{card.glyph}</span>
 					</div>
