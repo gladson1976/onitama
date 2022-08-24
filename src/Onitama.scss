@@ -127,9 +127,19 @@ body, .onitama-wrapper {
 }
 
 .onitama-cell {
-	// border: 1px solid #292929;
 	width: 100%;
 	height: 100%;
+}
+
+.onitama-cell-selected::after {
+	content: ' ';
+	display: block;
+	border-radius: 50%;
+	background-color: var(--ONITAMA-CARD-COLOR-RED);
+	width: 90%;
+	height: 90%;
+	margin: 5%;
+	border: 1px solid var(--ONITAMA-PLAYER-COLOR-RED);
 }
 
 .onitama-player {

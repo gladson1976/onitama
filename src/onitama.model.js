@@ -1,7 +1,9 @@
 const onitamaData = {
 	gameSettings: {
 		allowHints: false,
-		selectedPacks: [1]
+		selectedPacks: [1],
+		currentHand: [],
+		onitamaBoard: []
 	},
 	gameStats: {
 		played: 0,
