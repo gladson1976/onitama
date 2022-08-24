@@ -12,10 +12,12 @@ function Onitama() {
 	const [selectedPacks, setSelectedPacks] = useState([1]); // Array of selected packs (Onitama, Sensei's Path, Way of the Wind). Onitama is always selected.
 	const [currentCardSet, setCurrentCardSet] = useState([]);
 	const [currentBoard, setCurrentBoard] = useState(Array(25));
+	const [possibleBoard, setPossibleBoard] = useState(Array(25));
 	const [currentHand, setCurrentHand] = useState([]); // 5 element array of cards [0, 1] -> Player, [2] -> Extra, [3, 4] -> Automaton.
 	const [spareCardHolder, setSpareCardHolder] = useState('human');
 	const [selectedPiece, setSelectedPiece] = useState(-1);
 	const [selectedCard, setSelectedCard] = useState(-1);
+	const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
 
 	const getRandom = useCallback((min, max) => {
 		return Math.floor(Math.random()*(max-min+1))+min;
@@ -38,15 +40,18 @@ function Onitama() {
 	}, [selectedPacks]);
 
 	const clearOnitamaBoard = useCallback(() => {
-		let tempBoard = Object.assign([], currentBoard);
-		_.map(tempBoard, (value, index) => {
-			tempBoard[index] = 0;
-		});
+		let tempBoard = _.fill(Array(25), 0);
 		setCurrentBoard(tempBoard);
-	}, [currentBoard]);
+	}, []);
+
+	const clearPossibleMoves = useCallback(() => {
+		let tempBoard = _.fill(Array(25), 0);
+		setPossibleBoard(tempBoard);
+	}, []);
 
 	const initOnitamaBoard = useCallback(() => {
-		let tempBoard = Object.assign([], currentBoard);
+		let tempBoard = _.fill(Array(25), 0);
+		console.log(tempBoard);
 		tempBoard[0] = 1;
 		tempBoard[1] = 1;
 		tempBoard[2] = 10;
@@ -58,8 +63,11 @@ function Onitama() {
 		tempBoard[23] = 2;
 		tempBoard[24] = 2;
 		setCurrentBoard(tempBoard);
+		clearPossibleMoves();
 		setSelectedPiece(-1);
-	}, [currentBoard]);
+		setSelectedCard(-1);
+		setSelectedCardIndex(-1);
+	}, [clearPossibleMoves]);
 
 	const goHint = useCallback(() => {
 		console.log('Hint');
@@ -68,7 +76,7 @@ function Onitama() {
 	const newOnitama = useCallback(() => {
 		clearOnitamaBoard();
 		initOnitamaBoard();
-		const tempSet = Object.assign([], currentCardSet);
+		const tempSet = _.cloneDeep(currentCardSet);
 		let tempHand = [];
 		const dealOrder = [0, 1, 3, 4, 2];
 		_.map(dealOrder, (order) => {
@@ -94,25 +102,68 @@ function Onitama() {
 	}, []);
 
 	const computePossibleMoves = useCallback(() => {
+		if (selectedCard === -1 || selectedPiece === -1) {
+			clearPossibleMoves();
+			return;
+		}
+		const tempSelectedCard = _.find(currentCardSet, (card) => { return card.id === selectedCard; });
+		let tempBoard = _.fill(Array(25), 0);
+		_.map(tempSelectedCard.moves, (move) => {
+			const moveDirection = move % 5 < 2 ? 'left' : move % 5 > 2 ? 'right' : 'middle';
+			const tempMove = selectedPiece + (move - 12);
+			const tempDirection = tempMove % 5 < (selectedPiece % 5) ? 'left' : tempMove % 5 > (selectedPiece % 5) ? 'right' : 'middle';
+			if (
+				(tempMove > -1 && tempMove < 25) &&
+				(currentBoard[tempMove] !== 2 && currentBoard[tempMove] !== 20) &&
+				moveDirection === tempDirection
+			) {
+				tempBoard[tempMove] = 30;
+			}
+		});
+		setPossibleBoard(tempBoard);
+	}, [clearPossibleMoves, currentBoard, currentCardSet, selectedCard, selectedPiece]);
 
-	}, []);
+	const switchSpareCard = useCallback(() => {
+		let tempHand = _.cloneDeep(currentHand);
+		const tempSpare = tempHand[2];
+		tempHand[2] = tempHand[selectedCardIndex];
+		tempHand[selectedCardIndex] = tempSpare;
+		setSelectedCard(-1);
+		setSelectedCardIndex(-1);
+		setCurrentHand(tempHand);
+		setSpareCardHolder(spareCardHolder === 'auto' ? 'human' : 'auto');
+	}, [currentHand, selectedCardIndex, spareCardHolder]);
+
+	const checkCellMove = useCallback((cellIndex) => {
+		let tempBoard = _.cloneDeep(currentBoard);
+		if (tempBoard[cellIndex] === 0 && possibleBoard[cellIndex] === 30) {
+			tempBoard[cellIndex] = tempBoard[selectedPiece];
+			tempBoard[selectedPiece] = 0;
+			switchSpareCard();
+			setSelectedPiece(-1);
+		}
+		setCurrentBoard(tempBoard);
+	}, [currentBoard, possibleBoard, selectedPiece, switchSpareCard]);
 
 	const checkCellClick = useCallback((cellIndex) => {
 		// If index is a valid selectable piece (2 or 20) and set it as the selected piece
 		// If same piece is selected again, deselect it
 		// If piece is already selected and index is a valid move position, then proceed to move action
-		if (selectedPiece === cellIndex) {
-			setSelectedPiece(-1);
-			return;
+		if (currentBoard[cellIndex] === 2 || currentBoard[cellIndex] === 20) {
+			setSelectedPiece(selectedPiece === cellIndex ? -1 : cellIndex);
+		} else {
+			checkCellMove(cellIndex);
 		}
-		setSelectedPiece(cellIndex);
-		computePossibleMoves();
-	}, [computePossibleMoves, selectedPiece]);
+	}, [checkCellMove, currentBoard, selectedPiece]);
 
-	const checkCardClick = useCallback((selCard) => {
-		setSelectedCard(selCard.id);
-		computePossibleMoves();
-	}, [computePossibleMoves]);
+	const checkCardClick = useCallback((selCard, handIndex) => {
+		setSelectedCard(selectedCard === selCard.id ? -1 : selCard.id);
+		setSelectedCardIndex(selectedCard === selCard.id ? -1 : handIndex);
+	}, [selectedCard]);
+
+	const computeAutomatonMove = useCallback(() => {
+		console.log('Automaton Move');
+	}, []);
 
 	const renderOnitamaHeader = useCallback(() => {
 		return (
@@ -148,15 +199,16 @@ function Onitama() {
 								'onitama-dragon-blue': value === 10,
 								'onitama-student-red': value === 2,
 								'onitama-dragon-red': value === 20,
-								'onitama-cell-selected': index === selectedPiece
+								'onitama-cell-selected': index === selectedPiece,
+								'onitama-possible-move': possibleBoard[index] === 30
 							})}
-							onClick={() => { value === 2 || value === 20 ? checkCellClick(index) : null; }}></div>
+							onClick={() => { checkCellClick(index); }}></div>
 						);
 					})
 				}
 			</div>
 		);
-	}, [checkCellClick, currentBoard, selectedPiece]);
+	}, [checkCellClick, currentBoard, possibleBoard, selectedPiece]);
 
 	const renderCells = useCallback((card) => {
 		const cardMoveColor = `onitama-cell-${card.color}`;
@@ -170,7 +222,7 @@ function Onitama() {
 		});
 	}, [currentBoard]);
 
-	const renderCard = useCallback((card, isSpareCard = false, player = '') => {
+	const renderCard = useCallback((card, isSpareCard = false, player = '', handIndex = -1) => {
 		return (
 			<>
 				<div key={card.name} className={classNames('onitama-card', {
@@ -179,7 +231,7 @@ function Onitama() {
 					'onitama-card-color-red': card.rank === 'red',
 					'onitama-card-selected': card.id === selectedCard
 				})}
-				onClick={() => { player === 'human' && !isSpareCard ? checkCardClick(card) : null; }}>
+				onClick={() => { player === 'human' && !isSpareCard ? checkCardClick(card, handIndex) : null; }}>
 					<div key={`onitamaCardHeader-${card.name}`} id="onitamaCardHeader" className="onitama-card-header">
 						<span>{card.name}</span> <span>{card.glyph}</span>
 					</div>
@@ -197,7 +249,7 @@ function Onitama() {
 			return;
 		}
 		return _.map(selectedCards, (card) => {
-			return renderCard(currentHand[card], false, player);
+			return renderCard(currentHand[card], false, player, card);
 		});
 	}, [currentHand, renderCard]);
 
@@ -236,6 +288,18 @@ function Onitama() {
 			</>
 		);
 	}, [renderCards, renderOnitamaBoard, renderSpareCard]);
+
+	useEffect(() => {
+		console.log(spareCardHolder);
+		if (spareCardHolder === 'auto') {
+			computeAutomatonMove();
+		}
+	}, [computeAutomatonMove, spareCardHolder]);
+
+	useEffect(() => {
+		computePossibleMoves();
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedCard, selectedPiece]);
 
 	useEffect(() => {
 		setSelectedPacks([1]);
