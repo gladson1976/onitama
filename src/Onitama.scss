@@ -143,38 +143,26 @@ body, .onitama-wrapper {
 // }
 
 .onitama-cell-selected {
-	position: relative;
-}
-
-.onitama-cell-selected::before,
-.onitama-cell-selected::after {
-	content: '';
-	position: absolute;
-	width: 1vh;
-	height: 1vh;
-	border: 0.5vh solid var(--ONITAMA-PLAYER-COLOR-RED);
-}
-
-.onitama-cell-selected::before {
-	left: 4%;
-	top: 4%;
-	border-bottom: none;
-	border-right: none;
-}
-
-.onitama-cell-selected::after {
-	right: 4%;
-	bottom: 4%;
-	border-top: none;
-	border-left: none;
+	--game-token-selected-dropshadow-color: #FFA50099;
+	--game-token-selected-dropshadow-pos: 2px;
+	--game-token-selected-dropshadow-neg: -2px;
+	--game-token-selected-dropshadow-blur: 2px;
+	content: ' ';
+	display: block;
+	filter:
+	  drop-shadow(var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color));
 }
 
 .onitama-possible-move::after {
-	content: '';
+	content: ' ';
 	display: block;
-	width: 100%;
-	height: 100%;
-	background-color: var(--ONITAMA-CARD-COLOR-RED);
+	width: 90%;
+	height: 90%;
+	margin: 5%;
+	animation: Pulse 2s ease-out infinite;
 }
 
 .onitama-player {
@@ -765,5 +753,18 @@ input[type="checkbox"].square:checked:before {
 	}
 	40%, 60% {
 		transform: translateX(4px);
+	}
+}
+
+@keyframes Pulse {
+	0%, 100% {
+		--game-token-selected-dropshadow-color: #FFA500CC;
+		border: 1px solid var(--game-token-selected-dropshadow-color);
+		box-shadow: inset 1px 1px 10px 3px var(--game-token-selected-dropshadow-color);
+	}
+	66% {
+		--game-token-selected-dropshadow-color: #FFA50099;
+		border: 1px solid var(--game-token-selected-dropshadow-color);
+		box-shadow: inset 1px 1px 30px 3px var(--game-token-selected-dropshadow-color);
 	}
 }

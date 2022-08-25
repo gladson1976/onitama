@@ -135,8 +135,9 @@ function Onitama() {
 	}, [currentHand, selectedCardIndex, spareCardHolder]);
 
 	const checkCellMove = useCallback((cellIndex) => {
+		const validJumpTargets = [0, 1, 10];
 		let tempBoard = _.cloneDeep(currentBoard);
-		if (tempBoard[cellIndex] === 0 && possibleBoard[cellIndex] === 30) {
+		if (validJumpTargets.includes(tempBoard[cellIndex]) && possibleBoard[cellIndex] === 30) {
 			tempBoard[cellIndex] = tempBoard[selectedPiece];
 			tempBoard[selectedPiece] = 0;
 			switchSpareCard();
@@ -163,7 +164,14 @@ function Onitama() {
 
 	const computeAutomatonMove = useCallback(() => {
 		console.log('Automaton Move');
-	}, []);
+		const selectedCards = [3, 4];
+		if (currentHand.length === 0) {
+			return;
+		}
+		return _.map(selectedCards, (card) => {
+			return card;
+		});
+	}, [currentHand]);
 
 	const renderOnitamaHeader = useCallback(() => {
 		return (
