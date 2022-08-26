@@ -208,7 +208,8 @@ function Onitama() {
 								'onitama-student-red': value === 2,
 								'onitama-dragon-red': value === 20,
 								'onitama-cell-selected': index === selectedPiece,
-								'onitama-possible-move': possibleBoard[index] === 30
+								'onitama-dragon-red-possible': possibleBoard[index] === 30 && currentBoard[selectedPiece] === 20,
+								'onitama-student-red-possible': possibleBoard[index] === 30 && currentBoard[selectedPiece] === 2
 							})}
 							onClick={() => { checkCellClick(index); }}></div>
 						);

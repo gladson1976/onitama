@@ -22,6 +22,11 @@
 	--ONITAMA-CELL-PLAYER: #292929;
 	--ONITAMA-CELL-WIND: #000080;
 	--ONITAMA-CELL-BORDER: #292929;
+
+	--game-token-selected-dropshadow-color: #FFA50099;
+	--game-token-selected-dropshadow-pos: 2px;
+	--game-token-selected-dropshadow-neg: -2px;
+	--game-token-selected-dropshadow-blur: 2px;
 }
 
 @font-face {
@@ -143,10 +148,6 @@ body, .onitama-wrapper {
 // }
 
 .onitama-cell-selected {
-	--game-token-selected-dropshadow-color: #FFA50099;
-	--game-token-selected-dropshadow-pos: 2px;
-	--game-token-selected-dropshadow-neg: -2px;
-	--game-token-selected-dropshadow-blur: 2px;
 	content: ' ';
 	display: block;
 	filter:
@@ -154,15 +155,6 @@ body, .onitama-wrapper {
 	  drop-shadow(var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
 	  drop-shadow(var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
 	  drop-shadow(var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color));
-}
-
-.onitama-possible-move::after {
-	content: ' ';
-	display: block;
-	width: 90%;
-	height: 90%;
-	margin: 5%;
-	animation: Pulse 2s ease-out infinite;
 }
 
 .onitama-player {
@@ -289,14 +281,65 @@ body, .onitama-wrapper {
 	background-size: contain;
 }
 
+.onitama-dragon-red-possible:after {
+	content: '';
+	display: block;
+	width: 100%;
+	height: 100%;
+	background-image: url(dragon-red.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	opacity: 0.5;
+	filter:
+	  drop-shadow(var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color));
+	  animation: Pulse 3s ease-out infinite;
+}
+
 .onitama-ninja-red {
 	background-image: url(ninja-red.png);
 	background-size: contain;
 }
 
+.onitama-ninja-red-possible:after {
+	content: '';
+	display: block;
+	width: 100%;
+	height: 100%;
+	background-image: url(ninja-red.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	opacity: 0.5;
+	filter:
+	  drop-shadow(var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color));
+	  animation: Pulse 3s ease-out infinite;
+}
+
 .onitama-student-red {
 	background-image: url(student-red.png);
 	background-size: contain;
+}
+
+.onitama-student-red-possible:after {
+	content: '';
+	display: block;
+	width: 100%;
+	height: 100%;
+	background-image: url(student-red.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	opacity: 0.5;
+	filter:
+	  drop-shadow(var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color))
+	  drop-shadow(var(--game-token-selected-dropshadow-neg) var(--game-token-selected-dropshadow-pos) var(--game-token-selected-dropshadow-blur) var(--game-token-selected-dropshadow-color));
+	  animation: Pulse 3s ease-out infinite;
 }
 
 .onitama-dragon-blue {
@@ -758,13 +801,9 @@ input[type="checkbox"].square:checked:before {
 
 @keyframes Pulse {
 	0%, 100% {
-		--game-token-selected-dropshadow-color: #FFA500CC;
-		border: 1px solid var(--game-token-selected-dropshadow-color);
-		box-shadow: inset 1px 1px 10px 3px var(--game-token-selected-dropshadow-color);
+		opacity: 0.5;
 	}
-	66% {
-		--game-token-selected-dropshadow-color: #FFA50099;
-		border: 1px solid var(--game-token-selected-dropshadow-color);
-		box-shadow: inset 1px 1px 30px 3px var(--game-token-selected-dropshadow-color);
+	50% {
+		opacity: 0
 	}
 }
