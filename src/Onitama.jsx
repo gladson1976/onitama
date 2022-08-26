@@ -101,6 +101,14 @@ function Onitama() {
 		console.log('Help - ', appTitle, appVersion);
 	}, []);
 
+	const checkOnitama = useCallback(() => {
+		const isAutomatonStoned = !_.find(currentBoard, (cell) => { return cell === 10; });
+		const isPlayerStoned = !_.find(currentBoard, (cell) => { return cell === 20; });
+		const isAutomatonStreamed = currentBoard[2] === 20;
+		const isPlayerStreamed = currentBoard[22] === 10;
+		console.log(isAutomatonStoned, isPlayerStoned, isAutomatonStreamed, isPlayerStreamed);
+	}, [currentBoard]);
+
 	const computePossibleMoves = useCallback(() => {
 		if (selectedCard === -1 || selectedPiece === -1) {
 			clearPossibleMoves();
@@ -162,16 +170,54 @@ function Onitama() {
 		setSelectedCardIndex(selectedCard === selCard.id ? -1 : handIndex);
 	}, [selectedCard]);
 
+	const computeAutomatonWeightage = useCallback((card, selectedPiece) => {
+		const tempSelectedCard = _.cloneDeep(card);
+		let tempBoard = _.fill(Array(25), 0);
+		_.map(tempSelectedCard.moves, (move) => {
+			const moveDirection = move % 5 < 2 ? 'left' : move % 5 > 2 ? 'right' : 'middle';
+			const tempMove = selectedPiece.position + (12 - move);
+			const tempDirection = tempMove % 5 < (selectedPiece.position % 5) ? 'right' : tempMove % 5 > (selectedPiece.position % 5) ? 'left' : 'middle';
+			if (
+				(tempMove > -1 && tempMove < 25) &&
+				(currentBoard[tempMove] !== 1 && currentBoard[tempMove] !== 10) &&
+				moveDirection === tempDirection
+			) {
+				tempBoard[tempMove] = currentBoard[tempMove] === 0
+					? 30
+					: currentBoard[tempMove] === 2 || currentBoard[tempMove] === 20
+						? 40
+						: 0;
+			}
+		});
+		return tempBoard;
+	}, [currentBoard]);
+
+	const computeAutomatonPossibleMoves = useCallback((card, autoPositions) => {
+		return _.map(autoPositions, (piece) => {
+			return {card: card, piece:piece, possibles: computeAutomatonWeightage(card, piece)};
+		});
+	}, [computeAutomatonWeightage]);
+
 	const computeAutomatonMove = useCallback(() => {
 		console.log('Automaton Move');
-		const selectedCards = [3, 4];
+		const selectedCardPositions = [3, 4];
+		const selectedCards = _.filter(currentHand, (card, index) => {
+			return selectedCardPositions.includes(index);
+		});
+		const currentPiecePositions = _.compact(_.map(currentBoard, (cell, index) => {
+			return cell !== 0 ? {position: index, piece: cell, weight: 0} : null;
+		}));
+		const autoPositions = _.compact(_.filter(currentPiecePositions, (value) => {
+			return value.piece === 1 || value.piece === 10 ? value : null;
+		}));
 		if (currentHand.length === 0) {
 			return;
 		}
-		return _.map(selectedCards, (card) => {
-			return card;
-		});
-	}, [currentHand]);
+		const automatonWeightages = _.flatten(_.map(selectedCards, (card) => {
+			return computeAutomatonPossibleMoves(card, autoPositions);
+		}));
+		console.log(automatonWeightages);
+	}, [computeAutomatonPossibleMoves, currentBoard, currentHand]);
 
 	const renderOnitamaHeader = useCallback(() => {
 		return (
@@ -297,6 +343,10 @@ function Onitama() {
 			</>
 		);
 	}, [renderCards, renderOnitamaBoard, renderSpareCard]);
+
+	useEffect(() => {
+		checkOnitama();
+	}, [checkOnitama]);
 
 	useEffect(() => {
 		console.log(spareCardHolder);
