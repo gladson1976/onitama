@@ -18,6 +18,9 @@ function Onitama() {
 	const [selectedPiece, setSelectedPiece] = useState(-1);
 	const [selectedCard, setSelectedCard] = useState(-1);
 	const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
+	const [showAnimatedSpare, setShowAnimatedSpare] = useState(false);
+	const [isGameOver, setIsGameOver] = useState(false);
+	const [onitamaMessage, setOnitamaMessage] = useState({});
 
 	const getRandom = useCallback((min, max) => {
 		return Math.floor(Math.random()*(max-min+1))+min;
@@ -42,6 +45,7 @@ function Onitama() {
 	const clearOnitamaBoard = useCallback(() => {
 		let tempBoard = _.fill(Array(25), 0);
 		setCurrentBoard(tempBoard);
+		setShowAnimatedSpare(true);
 	}, []);
 
 	const clearPossibleMoves = useCallback(() => {
@@ -51,7 +55,6 @@ function Onitama() {
 
 	const initOnitamaBoard = useCallback(() => {
 		let tempBoard = _.fill(Array(25), 0);
-		console.log(tempBoard);
 		tempBoard[0] = 1;
 		tempBoard[1] = 1;
 		tempBoard[2] = 10;
@@ -67,6 +70,8 @@ function Onitama() {
 		setSelectedPiece(-1);
 		setSelectedCard(-1);
 		setSelectedCardIndex(-1);
+		setIsGameOver(false);
+		setOnitamaMessage({});
 	}, [clearPossibleMoves]);
 
 	const goHint = useCallback(() => {
@@ -101,12 +106,36 @@ function Onitama() {
 		console.log('Help - ', appTitle, appVersion);
 	}, []);
 
+	const showOnitamaSplash = useCallback(() => {
+		return (
+			<div id='onitamaWinner' className={classNames('onitama-win-splash', {
+				'onitama-win-blue': onitamaMessage.winner === 'auto',
+				'onitama-win-red': onitamaMessage.winner === 'human',
+				'show-onitama-win-splash': isGameOver
+			})}>
+				{onitamaMessage.message}
+			</div>
+		);
+	}, [isGameOver, onitamaMessage]);
+
 	const checkOnitama = useCallback(() => {
+		if (_.compact(currentBoard).length === 0) {
+			return;
+		}
 		const isAutomatonStoned = !_.find(currentBoard, (cell) => { return cell === 10; });
 		const isPlayerStoned = !_.find(currentBoard, (cell) => { return cell === 20; });
 		const isAutomatonStreamed = currentBoard[2] === 20;
 		const isPlayerStreamed = currentBoard[22] === 10;
-		console.log(isAutomatonStoned, isPlayerStoned, isAutomatonStreamed, isPlayerStreamed);
+		if (isAutomatonStoned) {
+			setOnitamaMessage({winner: 'human', message: 'Way of the Stone'});
+		} else if (isPlayerStoned) {
+			setOnitamaMessage({winner: 'auto', message: 'Way of the Stone'});
+		} else if (isAutomatonStreamed) {
+			setOnitamaMessage({winner: 'human', message: 'Way of the Stream'});
+		} else if (isPlayerStreamed) {
+			setOnitamaMessage({winner: 'auto', message: 'Way of the Stream'});
+		}
+		setIsGameOver(isAutomatonStoned || isPlayerStoned || isAutomatonStreamed || isPlayerStreamed);
 	}, [currentBoard]);
 
 	const computePossibleMoves = useCallback(() => {
@@ -170,6 +199,10 @@ function Onitama() {
 		setSelectedCardIndex(selectedCard === selCard.id ? -1 : handIndex);
 	}, [selectedCard]);
 
+	const decideAutomatonMove = useCallback((automatonWeightages) => {
+		console.log(automatonWeightages);
+	}, []);
+
 	const computeAutomatonWeightage = useCallback((card, selectedPiece) => {
 		const tempSelectedCard = _.cloneDeep(card);
 		let tempBoard = _.fill(Array(25), 0);
@@ -216,8 +249,8 @@ function Onitama() {
 		const automatonWeightages = _.flatten(_.map(selectedCards, (card) => {
 			return computeAutomatonPossibleMoves(card, autoPositions);
 		}));
-		console.log(automatonWeightages);
-	}, [computeAutomatonPossibleMoves, currentBoard, currentHand]);
+		decideAutomatonMove(automatonWeightages);
+	}, [computeAutomatonPossibleMoves, currentBoard, currentHand, decideAutomatonMove]);
 
 	const renderOnitamaHeader = useCallback(() => {
 		return (
@@ -278,9 +311,16 @@ function Onitama() {
 	}, [currentBoard]);
 
 	const renderCard = useCallback((card, isSpareCard = false, player = '', handIndex = -1) => {
+		if (!card) {
+			return;
+		}
+		if (showAnimatedSpare) {
+			window.setTimeout(() => { setShowAnimatedSpare(false); }, 2000);
+		}
 		return (
 			<>
-				<div key={card.name} className={classNames('onitama-card', {
+				<div key={card.name} className={classNames({
+					'onitama-card': !isSpareCard,
 					'onitama-spare-card': isSpareCard,
 					'onitama-card-color-blue': card.rank === 'blue',
 					'onitama-card-color-red': card.rank === 'red',
@@ -296,7 +336,7 @@ function Onitama() {
 				</div>
 			</>
 		);
-	}, [checkCardClick, renderCells, selectedCard]);
+	}, [checkCardClick, renderCells, selectedCard, showAnimatedSpare]);
 
 	const renderCards = useCallback((player) => {
 		const selectedCards = player === 'human' ? [0, 1] : [3, 4];
@@ -307,6 +347,22 @@ function Onitama() {
 			return renderCard(currentHand[card], false, player, card);
 		});
 	}, [currentHand, renderCard]);
+
+	const renderAnimatedSpare = useCallback(() => {
+		return (
+			<div className={classNames({'onitama-spare-card-animated-hidden': !showAnimatedSpare, 'onitama-spare-card-animated': showAnimatedSpare})}>
+				<div className={classNames({
+					'onitama-spare-card-flip': showAnimatedSpare,
+					'onitama-spare-animate': showAnimatedSpare
+				})}>
+					<div className='onitama-spare-card-flip-front'>
+						{renderCard(currentHand[2], true)}
+					</div>
+					<div className='onitama-spare-card-flip-back'></div>
+				</div>
+			</div>
+		);
+	}, [currentHand, renderCard, showAnimatedSpare]);
 
 	const renderSpareCard = useCallback((player) => {
 		if (currentHand.length === 0) {
@@ -322,6 +378,8 @@ function Onitama() {
 		return (
 			<>
 				<div key='onitamaContainer' id='onitamaContainer' className='onitama-container'>
+					{showOnitamaSplash()}
+					{renderAnimatedSpare()}
 					<div key='onitamaAutomatonContainer' id="onitamaAutomatonContainer" className="onitama-player-container onitama-rotate-card onitama-player-color-blue">
 						<div key='onitamaAutomaton' id="onitamaAutomaton" className="onitama-player">
 							{renderCards('auto')}
@@ -342,14 +400,19 @@ function Onitama() {
 				</div>
 			</>
 		);
-	}, [renderCards, renderOnitamaBoard, renderSpareCard]);
+	}, [renderAnimatedSpare, renderCards, renderOnitamaBoard, renderSpareCard, showOnitamaSplash]);
+
+	// useEffect(() => {
+	// 	if (showAnimatedSpare) {
+	// 		setCurrentHand([]);
+	// 	}
+	// }, [showAnimatedSpare]);
 
 	useEffect(() => {
 		checkOnitama();
 	}, [checkOnitama]);
 
 	useEffect(() => {
-		console.log(spareCardHolder);
 		if (spareCardHolder === 'auto') {
 			computeAutomatonMove();
 		}
