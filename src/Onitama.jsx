@@ -160,7 +160,7 @@ function Onitama() {
 		setPossibleBoard(tempBoard);
 	}, [clearPossibleMoves, currentBoard, currentCardSet, selectedCard, selectedPiece]);
 
-	const switchSpareCard = useCallback(() => {
+	const switchSpareCard = useCallback((selectedCardIndex) => {
 		let tempHand = _.cloneDeep(currentHand);
 		const tempSpare = tempHand[2];
 		tempHand[2] = tempHand[selectedCardIndex];
@@ -169,7 +169,7 @@ function Onitama() {
 		setSelectedCardIndex(-1);
 		setCurrentHand(tempHand);
 		setSpareCardHolder(spareCardHolder === 'auto' ? 'human' : 'auto');
-	}, [currentHand, selectedCardIndex, spareCardHolder]);
+	}, [currentHand, spareCardHolder]);
 
 	const checkCellMove = useCallback((cellIndex) => {
 		const validJumpTargets = [0, 1, 10];
@@ -177,11 +177,11 @@ function Onitama() {
 		if (validJumpTargets.includes(tempBoard[cellIndex]) && possibleBoard[cellIndex] === 30) {
 			tempBoard[cellIndex] = tempBoard[selectedPiece];
 			tempBoard[selectedPiece] = 0;
-			switchSpareCard();
+			switchSpareCard(selectedCardIndex);
 			setSelectedPiece(-1);
 		}
 		setCurrentBoard(tempBoard);
-	}, [currentBoard, possibleBoard, selectedPiece, switchSpareCard]);
+	}, [currentBoard, possibleBoard, selectedCardIndex, selectedPiece, switchSpareCard]);
 
 	const checkCellClick = useCallback((cellIndex) => {
 		// If index is a valid selectable piece (2 or 20) and set it as the selected piece
@@ -198,10 +198,63 @@ function Onitama() {
 		setSelectedCard(selectedCard === selCard.id ? -1 : selCard.id);
 		setSelectedCardIndex(selectedCard === selCard.id ? -1 : handIndex);
 	}, [selectedCard]);
+	
+	const checkIfKillMoveAvailable = useCallback((automatonWeightages) => {
+		return _.compact(_.map(automatonWeightages, (move) => {
+			const kills = _.compact(_.map(move.possibles, (possible, index) => {
+				if (possible === 40) {
+					return index;
+				}
+			}));
+			return kills.length > 0 ? {card: move.card, piece: move.piece, kill: kills} : null;
+		}));
+	}, []);
+
+	const checkIfNonKillMoveAvailable = useCallback((automatonWeightages) => {
+		return _.compact(_.map(automatonWeightages, (move) => {
+			const moves = _.compact(_.map(move.possibles, (possible, index) => {
+				if (possible === 30) {
+					return index;
+				}
+			}));
+			return moves.length > 0 ? {card: move.card, piece: move.piece, move: moves} : null;
+		}));
+	}, []);
+
+	const makeKillMove = useCallback((automatonWeightages, killMove) => {
+		console.log('Kill', killMove);
+	}, []);
+
+	const makeNonKillMove = useCallback((nonKillMove) => {
+		const moveCard = nonKillMove.card;
+		const moveCardIndex = _.findIndex(currentHand, (card) => { return card === moveCard; });
+		console.log('Non Kill', nonKillMove);
+
+		let tempBoard = _.cloneDeep(currentBoard);
+		tempBoard[nonKillMove.piece.position] = 0;
+		tempBoard[nonKillMove.move[0]] = nonKillMove.piece.piece;
+		setCurrentBoard(tempBoard);
+
+		// TODO: Make non kill move
+		setSelectedCardIndex(moveCardIndex);
+		switchSpareCard(moveCardIndex);
+	}, [currentBoard, currentHand, switchSpareCard]);
 
 	const decideAutomatonMove = useCallback((automatonWeightages) => {
 		console.log(automatonWeightages);
-	}, []);
+		const killMoves = checkIfKillMoveAvailable(automatonWeightages);
+		if (killMoves.length > 0) {
+			// Do kill move
+			const randomMove = getRandom(0, killMoves.length);
+			makeKillMove(automatonWeightages, randomMove);
+		} else {
+			// Do normal move
+			const nonKillMoves = checkIfNonKillMoveAvailable(automatonWeightages);
+			const randomMove = getRandom(0, nonKillMoves.length - 1);
+			console.log('Decide', nonKillMoves, randomMove);
+			makeNonKillMove(nonKillMoves[randomMove]);
+		}
+	}, [checkIfKillMoveAvailable, checkIfNonKillMoveAvailable, getRandom, makeKillMove, makeNonKillMove]);
 
 	const computeAutomatonWeightage = useCallback((card, selectedPiece) => {
 		const tempSelectedCard = _.cloneDeep(card);
